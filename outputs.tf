@@ -1,3 +1,3 @@
 output "centosami" {
-  value = data.aws_ami.centos.ami_id
+  value = aws_ami.centos.ami_id
 }

@@ -135,33 +135,16 @@ resource "aws_security_group" "bastion_sg" {
     cidr_blocks     = ["0.0.0.0/0"]
   }
 }
+
 #--------------------------PART4 - KeyPairs, Bastion Host in Public Subnet  --------------------
-# Ami id (ubuntu in this specific example)
-# data "aws_ami" "ubuntu" {
-#   most_recent = true
-
-#   filter {
-#     name   = "name"
-#     values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
-#   }
-
-#   filter {
-#     name   = "virtualization-type"
-#     values = ["hvm"]
-#   }
-
-#   owners = ["099720109477"] # Canonical
-# }
 # KeyPair
 resource "aws_key_pair" "deployer" {
   key_name   = "bastionkey"
   public_key = file(var.key_path)
 }
 
-
-
-# Instance
-resource "aws_instance" "web" {
+# Bastion Instance for connecting to resouces within VPC
+resource "aws_instance" "bastion" {
   # ami                       = data.aws_ami.ubuntu.id
   ami                           = var.ami_id
   key_name                      = aws_key_pair.deployer.id
@@ -173,7 +156,22 @@ resource "aws_instance" "web" {
   tags = {
     Name = "talant-BastionHost"
   }
+
+  provisioner "local-exec" {
+    command = <<-EOD
+    cat <<-EOF > aws_hosts
+    [dev]
+    ${aws_instance.bastion.public_ip}
+
+    [dev:vars]
+    hosts=dev
+    EOF
+    EOD
+  }
 }
+
+
+
 
 
 

@@ -4,6 +4,7 @@ provider "aws" {
 
 data "aws_availability_zones" "available" {}
 
+#--------------------------PART2 - New VPC Creation--------------------------
 # VPC
 resource "aws_vpc" "talant_vpc" {
   cidr_block            = var.vpc_cidr
@@ -14,7 +15,7 @@ resource "aws_vpc" "talant_vpc" {
     Name = "talant-VPC"
   }
 }
-
+#--------------------------PART2 - IGW, Public Subnet, Public Subnet Association--------------------------
 # Internet Gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.talant_vpc.id
@@ -38,16 +39,7 @@ resource "aws_default_route_table" "public_rt" {
   }
 }
 
-# Private Route Table
-resource "aws_route_table" "private_rt" {
-  vpc_id = aws_vpc.talant_vpc.id
-
-  tags = {
-    Name = "talant-private-RouteTable"
-  }
-}
-
-# Subnets
+# Public Subnets
 resource "aws_subnet" "talant_public_subnet" {
   count                   = 2
   vpc_id                  = aws_vpc.talant_vpc.id
@@ -67,6 +59,35 @@ resource "aws_route_table_association" "talant_public_assoc" {
   route_table_id = aws_default_route_table.public_rt.id
 }
 
+#--------------------------PART3 - ElasticIp, NatGW, Private Subnet, Private Subnet Association--------------------
+# Elastic IP for Nat gateway
+resource "aws_eip" "talant_eip" {
+  vpc = true
+  depends_on                = [aws_internet_gateway.igw]
+}
+
+# Nat Gateway
+resource "aws_nat_gateway" "talant_ngw" {
+  allocation_id = aws_eip.talant_eip.id
+  subnet_id     = aws_subnet.talant_public_subnet.*.id[0]
+
+  tags = {
+    Name = "talant-NATGW"
+  }
+}
+
+# Private Route Table
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.talant_vpc.id
+
+  route {
+    nat_gateway_id = aws_nat_gateway.talant_ngw.id
+  }
+
+  tags = {
+    Name = "talant-private-RouteTable"
+  }
+}
 
 # Private Subnet
 resource "aws_subnet" "talant_private_subnet" {
@@ -89,11 +110,6 @@ resource "aws_route_table_association" "talant_private_assoc" {
   route_table_id = aws_route_table.private_rt.id
 }
 
-# Nat gateway
-resource "aws_eip" "ngw" {
-  vpc = true
-  depends_on                = [aws_internet_gateway.igw]
-}
 
 
 

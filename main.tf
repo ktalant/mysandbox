@@ -113,8 +113,66 @@ resource "aws_route_table_association" "talant_private_assoc" {
   subnet_id      = aws_subnet.talant_private_subnet.*.id[count.index]
   route_table_id = aws_route_table.private_rt.id
 }
+#--------------------------PART4 - Security Groups--------------------
+# Bastion Host Sec-Group
+resource "aws_security_group" "bastion_sg" {
+  name        = "allow_tls"
+  description = "Allow SSH inbound traffic from VPN cidr"
+  vpc_id      = aws_vpc.talant_vpc.id
+
+  ingress {
+    # SSH
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = var.bastion_vpn_cidr
+  }
+
+  egress {
+    from_port       = 0
+    to_port         = 0
+    protocol        = "-1"
+    cidr_blocks     = ["0.0.0.0/0"]
+  }
+}
+#--------------------------PART4 - KeyPairs, Bastion Host in Public Subnet  --------------------
+# Ami id (ubuntu in this specific example)
+# data "aws_ami" "ubuntu" {
+#   most_recent = true
+
+#   filter {
+#     name   = "name"
+#     values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
+#   }
+
+#   filter {
+#     name   = "virtualization-type"
+#     values = ["hvm"]
+#   }
+
+#   owners = ["099720109477"] # Canonical
+# }
+# KeyPair
+resource "aws_key_pair" "deployer" {
+  key_name   = "bastionkey"
+  public_key = file(var.key_path)
+}
 
 
+
+# Instance
+resource "aws_instance" "web" {
+  # ami                       = data.aws_ami.ubuntu.id
+  ami                           = var.ami_id
+  instance_type                 = var.instance_type
+  subnet_id                     = aws_subnet.talant_public_subnet.*.id[1]
+  security_groups               = [aws_security_group.bastion_sg]
+  associate_public_ip_address   = true
+
+  tags = {
+    Name = "talant-BastionHost"
+  }
+}
 
 
 

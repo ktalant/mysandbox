@@ -89,6 +89,12 @@ resource "aws_route_table_association" "talant_private_assoc" {
   route_table_id = aws_route_table.private_rt.id
 }
 
+# Nat gateway
+resource "aws_eip" "ngw" {
+  vpc = true
+  depends_on                = [aws_internet_gateway.igw]
+}
+
 
 
 

@@ -1,5 +1,6 @@
 provider "aws" {
   region = "us-east-1"
+  profile = "jasmine"
 }
 
 data "aws_availability_zones" "available" {}

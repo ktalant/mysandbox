@@ -62,7 +62,7 @@ resource "aws_subnet" "talant_public_subnet" {
 
 # Public Subnet association
 resource "aws_route_table_association" "talant_public_assoc" {
-  count          = aws_subnet.talant_public_subnet.count
+  count          = length(aws_subnet.talant_public_subnet.count)
   subnet_id      = aws_subnet.talant_public_subnet.*.id[count.index]
   route_table_id = aws_route_table.public_rt.id
 }
@@ -84,7 +84,7 @@ resource "aws_subnet" "talant_private_subnet" {
 
 # Private Subnet association
 resource "aws_route_table_association" "talant_private_assoc" {
-  count          = aws_subnet.talant_private_subnet.count
+  count          = length(aws_subnet.talant_private_subnet.count)
   subnet_id      = aws_subnet.talant_private_subnet.*.id[count.index]
   route_table_id = aws_route_table.private_rt.id
 }

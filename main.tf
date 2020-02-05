@@ -55,7 +55,7 @@ resource "aws_subnet" "talant_public_subnet" {
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[count.index]
 
-  tags {
+  tags = {
     Name = "talant_public_subnet${count.index + 1}"
   }
 }
@@ -76,7 +76,7 @@ resource "aws_subnet" "talant_private_subnet" {
   map_public_ip_on_launch = true
   availability_zone       = data.aws_availability_zones.available.names[count.index]
 
-  tags {
+  tags = {
     Name = "talant_private_subnet${count.index + 1}"
   }
 }

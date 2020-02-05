@@ -70,6 +70,7 @@ resource "aws_eip" "talant_eip" {
 resource "aws_nat_gateway" "talant_ngw" {
   allocation_id = aws_eip.talant_eip.id
   subnet_id     = aws_subnet.talant_public_subnet.*.id[0]
+  depends_on = [aws_internet_gateway.igw]
 
   tags = {
     Name = "talant-NATGW"
@@ -80,9 +81,9 @@ resource "aws_nat_gateway" "talant_ngw" {
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.talant_vpc.id
 
-   
+  route {
     nat_gateway_id = aws_nat_gateway.talant_ngw.id
-
+  }
 
   tags = {
     Name = "talant-private-RouteTable"

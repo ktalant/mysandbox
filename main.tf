@@ -67,6 +67,8 @@ resource "aws_route_table_association" "talant_public_assoc" {
   route_table_id = aws_route_table.public_rt.id
 }
 
+
+# Private Subnet
 resource "aws_subnet" "talant_private_subnet" {
   count                   = 2
   vpc_id                  = aws_vpc.talant_vpc.id
@@ -77,6 +79,14 @@ resource "aws_subnet" "talant_private_subnet" {
   tags {
     Name = "talant_private_subnet${count.index + 1}"
   }
+}
+
+
+# Private Subnet association
+resource "aws_route_table_association" "talant_private_assoc" {
+  count          = aws_subnet.talant_private_subnet.count
+  subnet_id      = aws_subnet.talant_private_subnet.*.id[count.index]
+  route_table_id = aws_route_table.private_rt.id
 }
 
 

@@ -80,10 +80,9 @@ resource "aws_nat_gateway" "talant_ngw" {
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.talant_vpc.id
 
-  route {
-    destination_cidr_block    = "10.0.1.0/24"
+   
     nat_gateway_id = aws_nat_gateway.talant_ngw.id
-  }
+
 
   tags = {
     Name = "talant-private-RouteTable"

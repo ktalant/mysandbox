@@ -81,13 +81,16 @@ resource "aws_nat_gateway" "talant_ngw" {
 resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.talant_vpc.id
 
-  route {
-    nat_gateway_id = aws_nat_gateway.talant_ngw.id
-  }
-
   tags = {
     Name = "talant-private-RouteTable"
   }
+}
+
+resource "aws_route" "private_nat_gateway_route" {
+  route_table_id = aws_route_table.private.private_rt.id
+  destination_cidr_block = "0.0.0.0/0"
+  depends_on = [aws_route_table.private_rt]
+  nat_gateway_id = aws_nat_gateway.talant_ngw.id
 }
 
 # Private Subnet

@@ -166,7 +166,7 @@ resource "aws_instance" "web" {
   ami                           = var.ami_id
   instance_type                 = var.instance_type
   subnet_id                     = aws_subnet.talant_public_subnet.*.id[1]
-  security_groups               = [aws_security_group.bastion_sg]
+  security_groups               = [aws_security_group.bastion_sg.id]
   associate_public_ip_address   = true
 
   tags = {

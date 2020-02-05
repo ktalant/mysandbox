@@ -1,23 +1,14 @@
 provider "aws" {
-  region = "us-east-1"
+  region = "us-east-2"
 }
 
-data "aws_ami" "centos" {
-owners      = ["679593333241"]
-most_recent = true
+resource "aws_vpc" "talant_vpc" {
+  cidr_block            = var.vpc_cidr
+  enable_dns_support    = true
+  enable_dns_hostnames  = true
 
-  filter {
-      name   = "name"
-      values = ["CentOS Linux 7 x86_64 HVM EBS *"]
-  }
-
-  filter {
-      name   = "architecture"
-      values = ["x86_64"]
-  }
-
-  filter {
-      name   = "root-device-type"
-      values = ["ebs"]
+  tags = {
+    Name = "main"
   }
 }
+

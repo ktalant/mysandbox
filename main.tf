@@ -81,6 +81,7 @@ resource "aws_route_table" "private_rt" {
   vpc_id = aws_vpc.talant_vpc.id
 
   route {
+    cidr_block = "10.0.0.0/16"
     nat_gateway_id = aws_nat_gateway.talant_ngw.id
   }
 

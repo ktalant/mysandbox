@@ -164,6 +164,7 @@ resource "aws_key_pair" "deployer" {
 resource "aws_instance" "web" {
   # ami                       = data.aws_ami.ubuntu.id
   ami                           = var.ami_id
+  key_name                      = aws_key_pair.deployer.id
   instance_type                 = var.instance_type
   subnet_id                     = aws_subnet.talant_public_subnet.*.id[1]
   security_groups               = [aws_security_group.bastion_sg.id]
